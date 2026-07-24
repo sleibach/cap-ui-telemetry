@@ -3,6 +3,9 @@ import { getConfig } from './lib/config'
 import { extendClsCustomFields, ALL_FIELDS } from './lib/custom-fields'
 import { createFesrMiddleware } from './lib/fesr-middleware'
 import { injectTelemetryServiceModel } from './lib/telemetry-service-model'
+// Side-effect only: registers `cds add ui-telemetry` when running under
+// @sap/cds-dk. No-ops harmlessly under plain @sap/cds at normal runtime.
+import './add/ui-telemetry-add-plugin'
 
 const LOG = cds.log('ui-telemetry')
 

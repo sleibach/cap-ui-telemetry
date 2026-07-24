@@ -35,7 +35,7 @@ That's it for the backend — no code changes required. CAP auto-discovers the p
 [ui-telemetry] - active (FESR → cds.log('ui-fesr'), errors → POST /service/telemetry/errors → cds.log('ui-error'))
 ```
 
-**Frontend:** copy three files from [`ui5-snippets/`](./ui5-snippets) into your app and wire them up — see **[INTEGRATION.md](./INTEGRATION.md)** for numbered, verifiable steps (written so a coding agent can follow them unattended). Summary:
+**Frontend:** copy three files from [`ui5-snippets/`](./ui5-snippets) into your app and wire them up — see **[INTEGRATION.md](./INTEGRATION.md)** for numbered, verifiable steps (written so a coding agent can follow them unattended). `npx cds add ui-telemetry` automates the bootstrap flag + file-copy part of this (see INTEGRATION.md's Shortcut section). Summary:
 
 1. [`bootstrap-fesr.html`](./ui5-snippets/bootstrap-fesr.html) — add `data-sap-ui-fesr="true"` to your bootstrap tag.
 2. [`fesr-enrichment.js`](./ui5-snippets/fesr-enrichment.js) — optional, enriches FESR records with "which app is open" for shells hosting multiple apps.

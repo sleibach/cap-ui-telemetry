@@ -22,6 +22,24 @@ npm add cap-ui-telemetry
 
 If it says `disabled` instead, check `cds['ui-telemetry'].enabled` in the project's config — something explicitly set it to `false`.
 
+## Shortcut — `cds add ui-telemetry`
+
+Steps 2 and part of Step 4 (enabling the FESR flag, copying the two UI5 snippet files) can be automated:
+
+```sh
+npx cds add ui-telemetry
+```
+
+If the project has more than one `app/*/webapp/index.html`, the command lists the candidates and asks you to pick one:
+
+```sh
+CAP_UI_TELEMETRY_TARGET=app/your-shell npx cds add ui-telemetry
+```
+
+(`CAP_UI_TELEMETRY_TARGET`, not a `--target` CLI flag — cds-dk validates CLI options against an allowlist built before third-party plugins are necessarily discovered, so a custom flag here gets rejected as "Invalid option"; the env var sidesteps that entirely.)
+
+This is safe to re-run — it skips files that already exist (pass `--force` to overwrite) and won't duplicate the bootstrap attribute. It does **not** touch `Component.js` — it prints the exact snippet to add (Step 3/4 below) since that file's structure varies too much across projects to patch safely. Continue with Steps 2-4 below either way — they describe exactly what the command just did (or what to do by hand if you skip it).
+
 ## Step 2 — Enable FESR in the UI5 bootstrap
 
 Open the app's `index.html` (or the shell's, if there's a launchpad hosting multiple apps) and find the `<script id="sap-ui-bootstrap">` tag. Add one attribute:

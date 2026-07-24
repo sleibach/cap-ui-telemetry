@@ -1,5 +1,7 @@
 # cap-ui-telemetry
 
+[![npm version](https://img.shields.io/npm/v/cap-ui-telemetry.svg)](https://www.npmjs.com/package/cap-ui-telemetry)
+
 UI5 FESR (frontend performance) + client-error capture for SAP CAP (Node.js), forwarded to SAP Cloud Logging via `cds.log`.
 
 Built for landscapes that run SAP Cloud Logging but have **no Cloud ALM** — official FESR targets CALM RUM, which has nowhere to land without it. This plugin uses Cloud Logging as a **primary sink** for both signals instead: UI5's piggybacked FESR headers, and client-side JS errors.

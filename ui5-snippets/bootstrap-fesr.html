@@ -1,0 +1,27 @@
+<!--
+  cap-ui-telemetry — Step 1: enable FESR (Frontend Sub-Records).
+
+  Add `data-sap-ui-fesr="true"` to your existing sap-ui-bootstrap script tag.
+  This is the ONLY frontend change needed for performance capture — UI5 then
+  piggybacks the `SAP-Perf-FESRec` / `SAP-Perf-FESRec-opt` headers onto the
+  next backend request after each completed user interaction, and the plugin's
+  Express middleware (installed automatically) reads them.
+
+  Do NOT set a beacon URL (e.g. no `data-sap-ui-fesr-beacon-url`) — the
+  piggyback approach is what the backend middleware parses. A beacon URL
+  switches UI5 to `navigator.sendBeacon` against that URL instead, which the
+  plugin does not listen on.
+
+  Ad-hoc testing without touching the bootstrap tag: append `?sap-ui-fesr=true`
+  to the app URL — useful to confirm the wiring before making it permanent.
+-->
+<script id="sap-ui-bootstrap"
+    src="https://sapui5.hana.ondemand.com/resources/sap-ui-core.js"
+    data-sap-ui-theme="sap_horizon"
+    data-sap-ui-libs="sap.ui.core, sap.m"
+    data-sap-ui-compatVersion="edge"
+    data-sap-ui-async="true"
+    data-sap-ui-frameOptions="trusted"
+    data-sap-ui-fesr="true"
+    data-sap-ui-on-init="module:sap/ui/core/ComponentSupport">
+</script>

@@ -1,0 +1,88 @@
+{
+  "name": "cap-ui-telemetry",
+  "version": "0.1.0",
+  "description": "UI5 FESR (frontend performance) + client error capture for SAP CAP, forwarded to SAP Cloud Logging via cds.log",
+  "main": "cds-plugin.js",
+  "license": "Apache-2.0",
+  "author": "Soeren Leibach",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sleibach/cap-ui-telemetry.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sleibach/cap-ui-telemetry/issues"
+  },
+  "homepage": "https://github.com/sleibach/cap-ui-telemetry#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "cds",
+    "cap",
+    "ui5",
+    "fesr",
+    "telemetry",
+    "cloud-logging",
+    "sap"
+  ],
+  "files": [
+    "cds-plugin.js",
+    "dist",
+    "lib",
+    "ui5-snippets",
+    "INTEGRATION.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "test": "npm run build && jest --runInBand",
+    "test:watch": "jest --runInBand --watch"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/test/unit/**/*.test.js",
+      "**/test/integration/**/*.test.js"
+    ],
+    "testTimeout": 30000
+  },
+  "workspaces": [
+    "test/app"
+  ],
+  "peerDependencies": {
+    "@sap/cds": ">=8.0"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": "^0.4.1",
+    "@cap-js/cds-types": "^0.17.0",
+    "@cap-js/sqlite": "^2.2.0",
+    "@sap/cds": "^9.0.0",
+    "@sap/cds-dk": "^9.0.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^24.0.0",
+    "jest": "^30.0.0",
+    "typescript": "^5.0.0"
+  },
+  "cds": {
+    "ui-telemetry": {
+      "enabled": true,
+      "fesr": {
+        "enabled": true,
+        "logger": "ui-fesr",
+        "sampling": 1.0
+      },
+      "errors": {
+        "enabled": true,
+        "logger": "ui-error",
+        "path": "/service/telemetry",
+        "maxBatchSize": 50,
+        "maxMessageLength": 2048,
+        "maxStackLength": 8192
+      },
+      "customFields": {
+        "extend": true
+      },
+      "logUserOn": "debug"
+    }
+  }
+}

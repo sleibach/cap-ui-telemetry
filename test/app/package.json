@@ -1,0 +1,28 @@
+{
+  "name": "cap-ui-telemetry-test-app",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "cap-ui-telemetry": "file:../..",
+    "@cap-js/sqlite": "^2.2.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": { "url": ":memory:" }
+      },
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "alice": {},
+          "bob": {}
+        }
+      }
+    }
+  }
+}

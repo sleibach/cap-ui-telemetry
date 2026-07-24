@@ -33,6 +33,7 @@
     "INTEGRATION.md"
   ],
   "scripts": {
+    "prepare": "tsc",
     "build": "tsc",
     "build:watch": "tsc --watch",
     "test": "npm run build && jest --runInBand",

@@ -39,11 +39,10 @@ sap.ui.define(["sap/ui/performance/trace/FESR"], function (FESR) {
   function resolveActiveApp() {
     // --- Variant 1: custom UI5 launchpad shell (no sap.ushell) -------------
     // Matches a shell that tracks the currently open app's id in
-    // sessionStorage and/or a JSON model (e.g. cs-portal's csportalshell:
-    // sessionStorage["csportal.app"], model "appState" with a "currentTitle"
-    // property — see App.controller.js). Adjust the key to your own shell.
+    // sessionStorage and/or a JSON model. Replace "your.shell.activeApp" with
+    // whatever key your shell already uses to track the open app.
     try {
-      var sAppId = window.sessionStorage.getItem("csportal.app");
+      var sAppId = window.sessionStorage.getItem("your.shell.activeApp");
       if (sAppId) {
         return { appNameShort: sAppId, appNameLong: sAppId };
       }

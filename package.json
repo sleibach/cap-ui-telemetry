@@ -1,6 +1,6 @@
 {
   "name": "cap-ui-telemetry",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "UI5 FESR (frontend performance) + client error capture for SAP CAP, forwarded to SAP Cloud Logging via cds.log",
   "main": "cds-plugin.js",
   "license": "Apache-2.0",

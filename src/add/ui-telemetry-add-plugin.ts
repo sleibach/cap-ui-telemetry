@@ -1,7 +1,7 @@
 import cds = require('@sap/cds')
 import { existsSync } from 'fs'
 import { join } from 'path'
-import { findCandidateShells, patchBootstrapFlag, copySnippet } from '../lib/add-scaffold'
+import { findCandidateShells, patchBootstrapFlag, copySnippet, resolveNamespace } from '../lib/add-scaffold'
 
 // cds.add is only present under @sap/cds-dk (during `cds add`/`cds init`) —
 // never at runtime, where only plain @sap/cds is installed. `extends undefined`
@@ -57,6 +57,11 @@ export class UiTelemetryAddPlugin extends (AddPlugin ?? Object) {
     const fesrResult = copySnippet('FesrEnrichment.js', telemetryDir, force)
     const errorResult = copySnippet('ErrorReporter.js', telemetryDir, force)
 
+    // The UI5 module namespace (for sap.ui.require paths) frequently does NOT
+    // match the folder name (e.g. folder "task-queue" -> namespace "taskqueue") —
+    // read it from index.html's actual resourceRoots rather than guessing.
+    const namespace = resolveNamespace(indexHtml, appPath.split('/').pop() as string)
+
     console.log('cap-ui-telemetry:')
     console.log(`  ${appPath}/webapp/index.html — data-sap-ui-fesr="true": ${bootstrapResult}`)
     console.log(`  ${appPath}/webapp/telemetry/FesrEnrichment.js: ${fesrResult}`)
@@ -67,13 +72,15 @@ export class UiTelemetryAddPlugin extends (AddPlugin ?? Object) {
   sap.ui.define([
     "sap/ui/core/UIComponent",
     // ...your existing dependencies...
-    "${appPath.split('/').pop()}/telemetry/FesrEnrichment",
-    "${appPath.split('/').pop()}/telemetry/ErrorReporter"
+    "${namespace}/telemetry/FesrEnrichment",
+    "${namespace}/telemetry/ErrorReporter"
   ], function (UIComponent, /* ... */ FesrEnrichment, ErrorReporter) {
     return UIComponent.extend("...", {
       init: function () {
         FesrEnrichment.register();
-        new ErrorReporter().start();
+        // Standalone app: pass its own namespace. Shell with several embedded
+        // apps: pass a resolver function instead (see INTEGRATION.md Step 4).
+        new ErrorReporter({ appName: "${namespace}" }).start();
         UIComponent.prototype.init.apply(this, arguments);
         // ...
       }

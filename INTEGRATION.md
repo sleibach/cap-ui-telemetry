@@ -76,21 +76,30 @@ Skip this step for a single standalone app — UI5's own component-derived name 
 ## Step 4 — Add client-error reporting
 
 1. Copy [`ui5-snippets/ErrorReporter.js`](./ui5-snippets/ErrorReporter.js) into the app/shell, e.g. `webapp/telemetry/ErrorReporter.js`.
-2. Start it once, early (shell `Component.init()`, or the standalone app's `Component.init()` if there's no shell):
+2. Start it once, early (shell `Component.init()`, or the standalone app's `Component.init()` if there's no shell), **passing `appName`** so `ui-error` records correlate with the same app identity as `ui-fesr` records:
    ```js
    sap.ui.require(["your/app/telemetry/ErrorReporter"], function (ErrorReporter) {
-     new ErrorReporter().start();
-     // If /service/telemetry isn't reachable at the default path, override it:
-     // new ErrorReporter({ endpoint: "/your/service/telemetry/errors" }).start();
+     // Standalone app: its own known namespace/manifest id (static string).
+     new ErrorReporter({ appName: "yourAppNamespace" }).start();
+
+     // Shell hosting several embedded apps: a resolver instead, reading
+     // whatever fesr-enrichment.js's resolveActiveApp() reads for FESR records
+     // (called once per captured error, not cached, since the answer changes
+     // as the user navigates):
+     // new ErrorReporter({ appName: function () { return sessionStorage.getItem("my.app"); } }).start();
+
+     // If /service/telemetry isn't reachable at the default path, also override it:
+     // new ErrorReporter({ appName: "yourAppNamespace", endpoint: "/your/service/telemetry/errors" }).start();
    });
    ```
+   Omitting `appName` still works — `ui-error` records just won't carry an `appName` field, so you can't facet errors by app in Cloud Logging.
 
 **Verify:**
 - In the browser console, run `throw new Error('cap-ui-telemetry-integration-test')`.
 - Wait up to `flushInterval` (default 10s), or trigger a page navigation/close to force an immediate flush.
 - Check the backend log for:
   ```
-  [ui-error] - Client error: cap-ui-telemetry-integration-test { errorLevel: 'error', errorSource: 'window-error', ... }
+  [ui-error] - Client error: cap-ui-telemetry-integration-test { errorLevel: 'error', errorSource: 'window-error', appName: 'yourAppNamespace', ... }
   ```
 - Also try `sap.base.Log?.error?.('cap-ui-telemetry-log-test')` (or however `sap/base/Log` is available in that app) to confirm the `Log.addLogListener` path works too, distinct from the `window.onerror` path.
 

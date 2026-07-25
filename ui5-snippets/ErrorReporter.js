@@ -5,7 +5,11 @@
  * start it once, early — e.g. in the shell's Component.init():
  *
  *   sap.ui.require(["your/app/telemetry/ErrorReporter"], function (ErrorReporter) {
- *     new ErrorReporter().start();
+ *     // Standalone app: pass its own known namespace/manifest id.
+ *     new ErrorReporter({ appName: "yourAppNamespace" }).start();
+ *     // Shell hosting several embedded apps: pass a resolver instead, matching
+ *     // whatever fesr-enrichment.js's resolveActiveApp() reads for FESR records.
+ *     // new ErrorReporter({ appName: function () { return sessionStorage.getItem("my.app"); } }).start();
  *   });
  *
  * Sources captured:
@@ -37,6 +41,15 @@ sap.ui.define(["sap/base/Log"], function (Log) {
     // to the service root (one path segment up from `endpoint`) since an
     // unbound-action path is typically POST-only and may not answer HEAD.
     csrfEndpoint: null,
+    // "Which app is this error from" — a static string for a standalone app
+    // (e.g. its own manifest/namespace id, known at construction time), or a
+    // function for a shell hosting several embedded apps, where the answer
+    // changes as the user navigates (called once per captured entry, not
+    // cached) — e.g. `function () { return sessionStorage.getItem("my.app"); }`,
+    // matching whatever fesr-enrichment.js's resolveActiveApp() reads for FESR
+    // records, so errors and performance data correlate by the same appName.
+    // Left unset, ui-error records simply won't carry an appName.
+    appName: undefined,
     flushInterval: 10000,
     maxQueue: 50,
     maxPerMinute: 60,
@@ -47,6 +60,7 @@ sap.ui.define(["sap/base/Log"], function (Log) {
    * @param {object} [mOptions]
    * @param {string} [mOptions.endpoint="/service/telemetry/errors"]
    * @param {string} [mOptions.csrfEndpoint] defaults to the service root of `endpoint`
+   * @param {string|function(): string} [mOptions.appName] see DEFAULTS.appName above
    * @param {int}    [mOptions.flushInterval=10000] ms between batch sends
    * @param {int}    [mOptions.maxQueue=50] drop-oldest cap on the pending queue
    * @param {int}    [mOptions.maxPerMinute=60] client-side rate limit (batches, not entries)
@@ -146,10 +160,19 @@ sap.ui.define(["sap/base/Log"], function (Log) {
     oEntry.url = oEntry.url || window.location.href;
     oEntry.userAgent = navigator.userAgent;
     oEntry.timestamp = new Date().toISOString();
+    oEntry.appName = oEntry.appName || this._resolveAppName();
 
     this._queue.push(oEntry);
     if (this._queue.length > this._o.maxQueue) {
       this._queue.shift(); // drop oldest — keep the most recent signal
+    }
+  };
+
+  ErrorReporter.prototype._resolveAppName = function () {
+    try {
+      return typeof this._o.appName === "function" ? this._o.appName() : this._o.appName;
+    } catch (e) {
+      return undefined; // a broken resolver must never break error capture itself
     }
   };
 

@@ -42,6 +42,27 @@ export function patchBootstrapFlag(indexHtmlPath: string): PatchResult {
   return 'patched'
 }
 
+/**
+ * Reads the UI5 module namespace from index.html's resourceRoots — this
+ * frequently does NOT match the app's folder name (e.g. folder "task-queue"
+ * -> namespace "taskqueue", folder "responsibility-regions" -> namespace
+ * "regions"), so sap.ui.require paths must use this, not the folder name.
+ * Falls back to the folder name if resourceRoots can't be found/parsed.
+ */
+export function resolveNamespace(indexHtmlPath: string, folderName: string): string {
+  try {
+    const html = readFileSync(indexHtmlPath, 'utf8')
+    const match = html.match(/data-sap-ui-resource-?roots\s*=\s*'(\{[^}]*\})'/i)
+    if (match) {
+      const key = Object.keys(JSON.parse(match[1]))[0]
+      if (key) return key
+    }
+  } catch {
+    // fall through to the folder-name fallback below
+  }
+  return folderName
+}
+
 export type CopyResult = 'copied' | 'skipped-exists'
 
 /** Copies one of the shipped ui5-snippets into the target directory. */

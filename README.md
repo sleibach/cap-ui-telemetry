@@ -41,7 +41,7 @@ That's it for the backend — no code changes required. CAP auto-discovers the p
 
 1. [`bootstrap-fesr.html`](./ui5-snippets/bootstrap-fesr.html) — add `data-sap-ui-fesr="true"` to your bootstrap tag.
 2. [`fesr-enrichment.js`](./ui5-snippets/fesr-enrichment.js) — optional, enriches FESR records with "which app is open" for shells hosting multiple apps.
-3. [`ErrorReporter.js`](./ui5-snippets/ErrorReporter.js) — captures `sap/base/Log` errors/warnings, uncaught exceptions, and unhandled promise rejections, and POSTs them (batched, CSRF-protected, rate-limited) to the backend.
+3. [`ErrorReporter.js`](./ui5-snippets/ErrorReporter.js) — captures `sap/base/Log` errors/warnings, uncaught exceptions, and unhandled promise rejections, and POSTs them (batched, CSRF-protected, rate-limited) to the backend. Pass `appName` (a static string, or a resolver function for shells) so `ui-error` records correlate with the same app identity as `ui-fesr` records.
 
 ## Configuration reference
 

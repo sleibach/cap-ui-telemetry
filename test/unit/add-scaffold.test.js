@@ -2,7 +2,7 @@
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const { findCandidateShells, patchBootstrapFlag, copySnippet } = require('../../dist/lib/add-scaffold')
+const { findCandidateShells, patchBootstrapFlag, copySnippet, resolveNamespace } = require('../../dist/lib/add-scaffold')
 
 function tmpProject() {
   return fs.mkdtempSync(path.join(os.tmpdir(), 'cap-ui-telemetry-add-'))
@@ -141,5 +141,27 @@ describe('copySnippet', () => {
 
     expect(result).toBe('copied')
     expect(fs.readFileSync(path.join(targetDir, 'FesrEnrichment.js'), 'utf8')).toContain('sap.ui.define')
+  })
+})
+
+describe('resolveNamespace', () => {
+  it('reads the namespace from data-sap-ui-resource-roots when present', () => {
+    const indexHtml = path.join(root, 'index.html')
+    fs.writeFileSync(
+      indexHtml,
+      `<script id="sap-ui-bootstrap" data-sap-ui-resource-roots='{"taskqueue": "./"}'></script>`,
+      'utf8',
+    )
+    expect(resolveNamespace(indexHtml, 'task-queue')).toBe('taskqueue')
+  })
+
+  it('falls back to the folder name when there is no resourceRoots attribute', () => {
+    const indexHtml = path.join(root, 'index.html')
+    fs.writeFileSync(indexHtml, REAL_BOOTSTRAP, 'utf8')
+    expect(resolveNamespace(indexHtml, 'myshell')).toBe('myshell')
+  })
+
+  it('falls back to the folder name when the file does not exist', () => {
+    expect(resolveNamespace(path.join(root, 'missing.html'), 'myshell')).toBe('myshell')
   })
 })
